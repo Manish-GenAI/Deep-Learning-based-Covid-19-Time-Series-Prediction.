@@ -1,0 +1,2 @@
+# Deep-Learning-based-Covid-19-Time-Series-Prediction.
+• Developed a Deep Learning-based Covid-19 Time Series Prediction. • Used Deep Learning and Statistical approaches to capture the patterns and trends of varying events related to infectious diseases. • Implemented ARIMA,HWAAS Models for exploiting linear dependencies in observations and time series forecasting for univariable data. • Explored RNN, LSTM Neural Network to find temporal correlations in time series prediction.

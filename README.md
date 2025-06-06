@@ -1,3 +1,63 @@
+# Deep-Learning-Based COVID-19 Time Series Prediction
+
+**Paper (PDF):** [Download from Google Drive](https://drive.google.com/file/d/1hp2LyUZ4YgNRiLOmHVle4BJqK9K8dP0k/view)  
+**Code & Notebooks:** [Google Drive Folder](https://drive.google.com/drive/folders/1eYo6voqIcoAPT_1PwYUvfXsaeTr7ctt1)
+
+---
+
+## Project Overview
+
+A deep-learning and statistical approach to forecast active COVID-19 cases (as a percentage of total population) for the ten countries with the highest case counts as of May 4, 2020. The goal is to help governments plan public‐health interventions by accurately predicting when the outbreak will peak.
+
+- ✔️ Use **ARIMA**, **Holt–Winters Additive (HWAAS)**, **TBAT**, **Prophet**, **DeepAR**, and **N-Beats** on univariate time series.  
+- ✔️ Compare classical statistical models (ARIMA, HWAAS, TBAT) with modern deep‐learning approaches (Prophet, DeepAR, N-Beats).  
+- ✔️ Train on daily active case percentages (active cases ÷ total population) for USA, UK, Italy, Spain, Russia, France, Turkey, Germany, Iran, and Brazil.  
+- ✔️ Evaluate forecasting accuracy via **Root Mean Square Error (RMSE)** over a 7-day forecast horizon.  
+
+---
+
+## Table of Contents
+
+1. [Abstract](#abstract)  
+2. [Introduction](#introduction)  
+3. [Related Work](#related-work)  
+4. [Time Series Models](#time-series-models)  
+   - [ARIMA](#1-arima)  
+   - [Holt–Winters Additive (HWAAS)](#2-holt–winters-additive-hwaas)  
+   - [TBAT](#3-tbat)  
+   - [Prophet](#4-prophet)  
+   - [DeepAR](#5-deepar)  
+   - [N-Beats](#6-n-beats)  
+5. [Data Description](#data-description)  
+6. [Experiments & Results](#experiments--results)  
+   - [Model Training & Evaluation](#model-training--evaluation)  
+   - [Performance Comparison (RMSE)](#performance-comparison-rmse)  
+   - [Statistical Ranking (Friedman Test)](#statistical-ranking-friedman-test)  
+   - [Holm’s Post‐hoc Analysis (TBAT vs All)](#holms-post-hoc-analysis-tbat-vs-all)  
+   - [Forecasting Examples](#forecasting-examples)  
+7. [Conclusions & Future Work](#conclusions--future-work)  
+8. [References](#references)  
+
+---
+
+## Abstract
+
+> The ongoing COVID-19 pandemic has caused worldwide socioeconomic unrest, forcing governments to introduce extreme measures to reduce its spread. Accurately forecasting outbreak peaks would significantly diminish the disease’s impact, enabling proactive policy changes (public health messaging, resource allocation, etc.). This study investigates the accuracy of six time‐series modeling approaches—ARIMA, HWAAS, TBAT, Prophet, DeepAR, and N-Beats—on daily active COVID-19 case percentages for the ten countries with the highest confirmed cases as of May 4, 2020. Using two publicly available datasets (daily case counts & population), we demonstrate that classical statistical models (ARIMA, TBAT) often outperform deep‐learning methods when data are limited. ARIMA and TBAT achieve the lowest RMSE in 7 out of 10 countries, indicating that data‐scarce forecasting scenarios still favor simpler, interpretable models.
+
+**Keywords:** COVID-19, Time Series Forecasting, ARIMA, TBAT, DeepAR, N-Beats, RMSE, Pandemic Modeling
+
+---
+
+## 1. Introduction
+
+Since its emergence in December 2019 (Wuhan, China), COVID-19 has spread to 187 countries, causing over 3.5 million confirmed cases and 248,000 deaths (as of May 4, 2020). Governments worldwide have implemented self‐isolation and social‐distancing measures to “flatten the curve” and preserve healthcare capacity. However, large‐scale testing remains inconsistent: by April 23, 2020, no country had tested more than 13.4% of its population; the global average was only 1.3%.
+
+Accurate estimation of active case counts (active cases ÷ total population) is crucial for:
+- Public‐health planning & resource allocation  
+- Timing of lockdowns and social‐distancing policies  
+- Anticipating healthcare system loads (hospital beds, ICU, ventilators)
+
+This project compares six time‐series methods—three classical (ARIMA, HWAAS, TBAT) and three deep‐learning (Prophet, DeepAR, N-Beats)—to forecast active‐case percentages for:
 A 7-day forecast horizon is used; performance is measured in **RMSE** (Root Mean Square Error).
 
 ---

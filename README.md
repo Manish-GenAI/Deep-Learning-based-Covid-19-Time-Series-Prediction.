@@ -1,47 +1,47 @@
-A 7-day forecast horizon is used; performance is measured in **RMSE** (Root Mean Square Error).  
+A 7-day forecast horizon is used; performance is measured in **RMSE** (Root Mean Square Error).
 
 ---
 
 ## 2. Related Work
 
 ### 2.1. Classical Time Series in Infectious Diseases
-- **Leptospirosis & Climate**: Models linking monthly leptospirosis incidence to rainfall and temperature (Chadsuthi et al., 2012).  
-- **Malaria & ENSO**: Time‐series correlations between Plasmodium falciparum cases and El Niño Southern Oscillation (Hanf et al., 2011).  
-- **Influenza Forecasting**:  
+- **Leptospirosis & Climate:** Models linking monthly leptospirosis incidence to rainfall and temperature (Chadsuthi et al., 2012).  
+- **Malaria & ENSO:** Time‐series correlations between Plasmodium falciparum cases and El Niño Southern Oscillation (Hanf et al., 2011).  
+- **Influenza Forecasting:**  
   - ARIMA to predict monthly influenza incidence in China (Song et al., 2016).  
   - SARIMA + Internet search data to forecast US flu (Zhang et al., 2019).  
   - TBAT for complex seasonal influenza cycles (De Livera et al., 2011).  
   - Twitter‐based real‐time flu‐spread estimation (Lee et al., 2017).  
 
 ### 2.2. COVID-19 Forecasting
-- **China‐focused Models**:  
-  - Phenomenological models for province‐level cumulative cases (Roosa et al., 2020).  
+- **China‐focused Models:**  
+  - Phenomenological models for province-level cumulative cases (Roosa et al., 2020).  
   - SEIR + AI hybrid using migration data (Yang et al., 2020).  
   - Stacked autoencoder for Chinese confirmed case forecasts (Zheng et al., 2020).  
-  - Adaptive neuro‐fuzzy + metaheuristic for 10-day confirmed case forecasts (Al-qaness et al., 2020).  
-- **Global Predictions**:  
+  - ANFIS + metaheuristic for 10-day confirmed case forecasts (Al-qaness et al., 2020).  
+- **Global Predictions:**  
   - Simple exponential smoothing for global case counts (Petropoulos & Makridakis, 2020).  
   - IHME: Statistical modeling for US healthcare resource utilization (beds, ICU, ventilators).  
-  - R0 Estimation: Markov Chain Monte Carlo (Wu et al., 2020), SIRD models (Anastassopoulou et al., 2020).  
+  - R₀ Estimation: MCMC (Wu et al., 2020), SIRD models (Anastassopoulou et al., 2020).  
   - Diamond Princess outbreak analysis (Zhang et al., 2020).  
 
 Our work expands upon these by:
-1. Focusing on **active‐case percentage** (active cases ÷ population)  
+1. Focusing on **active-case percentage** (active cases ÷ population)  
 2. Comparing **six** diverse methods on the same 10-country dataset  
-3. Emphasizing simple statistical models vs. cutting‐edge deep‐learning approaches  
+3. Emphasizing simple statistical models vs. cutting-edge deep-learning approaches  
 
 ---
 
 ## 3. Time Series Models
 
-Below is a concise overview of each method used in this study. References to original papers are provided in [References](#references).
+Below is a concise overview of each method used in this study. References to original papers appear in [References](#references).
 
-### 3.1. ARIMA (Auto‐Regressive Integrated Moving Average)
+### 3.1. ARIMA (Auto-Regressive Integrated Moving Average)
 - **Core Idea:** Model current value as a linear combination of past values (AR), differencing (I), and past forecast errors (MA).  
 - **Strengths:**  
   - High interpretability (parameters have clear statistical meaning).  
   - Box–Jenkins methodology automates order selection (p, d, q).  
-  - Handles non‐stationary data via differencing.  
+  - Handles non-stationary data via differencing.  
 - **Limitations:**  
   - Unable to model nonlinear dependencies.  
   - Assumes linear relationships only.  
@@ -55,19 +55,19 @@ Below is a concise overview of each method used in this study. References to ori
   2. **Trend** (b)  
   3. **Seasonality** (s)  
 - **Formula (Additive):**  
-  1. Level: 
+  1. Level:  
      \[
-       \ell_t = \alpha \left(y_t - s_{t - m}\right) + (1 - \alpha)(\ell_{t-1} + b_{t-1})
+       \ell_t = \alpha\,\bigl(y_t - s_{t - m}\bigr)\;+\;(1 - \alpha)\,(\ell_{t-1} + b_{t-1})
      \]
-  2. Trend:
+  2. Trend:  
      \[
-       b_t = \beta \left(\ell_t - \ell_{t-1}\right) + (1 - \beta) b_{t-1}
+       b_t = \beta\,\bigl(\ell_t - \ell_{t-1}\bigr)\;+\;(1 - \beta)\,b_{t-1}
      \]
-  3. Seasonality:
+  3. Seasonality:  
      \[
-       s_t = \gamma \left(y_t - \ell_t\right) + (1 - \gamma) s_{t - m}
+       s_t = \gamma\,\bigl(y_t - \ell_t\bigr)\;+\;(1 - \gamma)\,s_{t - m}
      \]
-  4. Forecast (h steps ahead):
+  4. Forecast (h steps ahead):  
      \[
        \hat{y}_{t+h} = \ell_t + h\,b_t + s_{t + h - m\,\lfloor (h-1)/m \rfloor}
      \]
@@ -85,7 +85,7 @@ Below is a concise overview of each method used in this study. References to ori
 ### 3.3. TBAT (Trigonometric Seasonal, Box–Cox, ARMA, Trend)
 - **Core Idea:** Decompose a time series into trend + multiple seasonalities using a trigonometric formulation, apply Box–Cox transform, and model residuals with ARMA.  
 - **Components:**  
-  1. **Box–Cox Transform:** Stabilize variance → 
+  1. **Box–Cox Transform:** Stabilize variance →  
      \[
        y_t^{(\lambda)} = 
        \begin{cases}
@@ -93,15 +93,15 @@ Below is a concise overview of each method used in this study. References to ori
          \ln(y_t), & \lambda = 0.
        \end{cases}
      \]
-  2. **Trend:** Modeled by local linear or segment‐wise linear trend.  
-  3. **Seasonality:** Trigonometric representation for any (including non‐integer) seasonal frequency:
+  2. **Trend:** Local linear or segment-wise linear trend.  
+  3. **Seasonality:** Trigonometric representation for any (including non-integer) seasonal frequency:  
      \[
-       S_{t} = \sum_{k=1}^{K} \left( a_{k} \cos\left(\tfrac{2\pi k\,t}{m}\right) + b_{k} \sin\left(\tfrac{2\pi k\,t}{m}\right) \right)
+       S_{t} = \sum_{k=1}^{K} \bigl(a_{k}\cos\bigl(\tfrac{2\pi k\,t}{m}\bigr) \;+\; b_{k}\sin\bigl(\tfrac{2\pi k\,t}{m}\bigr)\bigr)
      \]
      - K: number of Fourier terms; m: seasonal period  
-  4. **ARMA Residuals:** Auto‐Regressive + Moving Average model on residual errors  
+  4. **ARMA Residuals:** Auto-Regressive + Moving Average model on residual errors  
 - **Strengths:**  
-  - Can capture complex/multiple seasonalities (e.g., weekly, yearly, sub‐daily).  
+  - Captures complex/multiple seasonalities (e.g., weekly, yearly, sub-daily).  
   - Handles nonlinearity via Box–Cox.  
   - Identifies hidden seasonal components not obvious in raw data.  
 - **Limitations:**  
@@ -116,19 +116,19 @@ Below is a concise overview of each method used in this study. References to ori
   \[
     y(t) = g(t) + s(t) + h(t) + \epsilon_t  
   \]
-  1. **Trend (g)**: 
+  1. **Trend (g):**  
      - **Piecewise linear** with change points, or  
      - **Logistic growth** (saturating)  
-  2. **Seasonality (s)**: Fourier series up to order N:
+  2. **Seasonality (s):** Fourier series up to order N:  
      \[
-       s(t) = \sum_{n=1}^{N} \left( a_n \cos\left(\tfrac{2\pi n\,t}{P}\right) + b_n \sin\left(\tfrac{2\pi n\,t}{P}\right) \right)
+       s(t) = \sum_{n=1}^{N} \bigl(a_n\cos\bigl(\tfrac{2\pi n\,t}{P}\bigr) + b_n\sin\bigl(\tfrac{2\pi n\,t}{P}\bigr)\bigr)
      \]
      - P: seasonal period (e.g., 365 days, 7 days)  
-  3. **Holiday Effects (h)**:  
-     - User‐provided list of dates with additive indicators  
-  4. **Error (ε)**: Gaussian noise  
+  3. **Holiday Effects (h):**  
+     - User-provided list of dates with additive indicators  
+  4. **Error (ε):** Gaussian noise  
 - **Strengths:**  
-  - User‐friendly: works well “out of the box” with default parameters.  
+  - User-friendly: works well “out of the box” with default parameters.  
   - Explicitly handles missing data and trend change points.  
   - Incorporates known holidays/events easily.  
 - **Limitations:**  
@@ -138,15 +138,15 @@ Below is a concise overview of each method used in this study. References to ori
 ---
 
 ### 3.5. DeepAR
-- **Core Idea:** Probabilistic forecasting using an auto‐regressive RNN (LSTM) to model future distribution, trained on many time series simultaneously.  
+- **Core Idea:** Probabilistic forecasting using an auto-regressive RNN (LSTM) to model future distribution, trained on many time series simultaneously.  
 - **Architecture:**  
   1. **Input:** Previous target values (t−1, t−2, …) and covariates (optional).  
   2. **LSTM:** Encodes historical context.  
   3. **Output Layer:** Parameterizes a chosen likelihood (e.g., Gaussian, Negative Binomial) at each time step.  
-  4. **Training Objective:** Maximize log‐likelihood of observed data under predicted distribution.  
+  4. **Training Objective:** Maximize log-likelihood of observed data under predicted distribution.  
 - **Strengths:**  
   - Produces full probabilistic forecasts (quantiles, prediction intervals).  
-  - Can leverage cross‐series learning: trains on multiple related time series to improve accuracy.  
+  - Can leverage cross-series learning: trains on multiple related time series to improve accuracy.  
   - Flexible: supports arbitrary likelihood functions (e.g., Student-T, Log-Norm, Poisson).  
 - **Limitations:**  
   - Requires substantial data to train effectively; may overfit on small datasets.  
@@ -156,7 +156,7 @@ Below is a concise overview of each method used in this study. References to ori
 ---
 
 ### 3.6. N-Beats
-- **Core Idea:** Deep fully‐connected residual architecture that explicitly separates trend and seasonality via basis expansions, enabling interpretability and state‐of‐the‐art accuracy.  
+- **Core Idea:** Deep fully-connected residual architecture that explicitly separates trend and seasonality via basis expansions, enabling interpretability and state-of-the-art accuracy.  
 - **Architecture Overview (Block):**  
   1. Input window of length L.  
   2. **Backcast:** Model reconstructs part of input (removes its contribution).  
@@ -167,7 +167,7 @@ Below is a concise overview of each method used in this study. References to ori
   5. **Residual Connections (Backcast − forecast):** Each block removes its backcast from the input before passing to the next block (hierarchical residual).  
 - **Strengths:**  
   - Interpretable: separate trend vs. seasonality outputs.  
-  - State‐of‐the‐art performance on M4/M3 forecasting competitions.  
+  - State-of-the-art performance on M4/M3 forecasting competitions.  
   - Fast to train; uses simple fully connected layers and ReLU.  
 - **Limitations:**  
   - Requires careful choice of stack depth and width.  
@@ -183,10 +183,10 @@ Below is a concise overview of each method used in this study. References to ori
      - Confirmed cases  
      - Recovered cases  
      - Deaths  
-   - Source: [Kaggle: Novel Corona Virus 2019 Dataset](https://www.kaggle.com/datasets/sudalairajkumar/covid19-in-india) _(example link—replace with actual)_  
+   - **Source:** [Kaggle: Novel Corona Virus 2019 Dataset](https://www.kaggle.com/datasets/sudalairajkumar/novel-corona-virus-2019-india-dataset)  
 2. **Population by Country** (Kaggle)  
    - 2019 population estimates for all countries  
-   - Source: [Kaggle: World Population by Country](https://www.kaggle.com/datasets/fernandol/countries-of-the-world) _(example link—replace with actual)_  
+   - **Source:** [Kaggle: World Population by Country](https://www.kaggle.com/datasets/fernandol/countries-of-the-world)  
 
 ### 4.2. Active Case Percentage Calculation
 - **Active Cases (daily):**  
@@ -226,23 +226,23 @@ Below is a concise overview of each method used in this study. References to ori
 ### 5.1. Model Training & Evaluation
 1. **Training**  
    - Fit each model on the 72 training days of `PctActive_t`.  
-   - Hyperparameters:  
+   - **Hyperparameters:**  
      - **ARIMA:** Automatic order selection via AICc (p, d, q).  
-     - **HWAAS:** Seasonal period m=7; smoothers α, β, γ tuned via validation RMSE.  
-     - **TBAT:** Fourier terms up to order K=2 (weekly seasonality), Box–Cox λ tuned on validation set, ARMA orders selected via BIC.  
+     - **HWAAS:** Seasonal period m = 7; smoothers α, β, γ tuned via validation RMSE.  
+     - **TBAT:** Fourier terms up to order K = 2 (weekly seasonality), Box–Cox λ tuned on validation set, ARMA orders selected via BIC.  
      - **Prophet:** Default growth (“logistic”), seasonalities (yearly, weekly), no holidays.  
      - **DeepAR:**  
        - 2 LSTM layers, 64 cells each  
        - Gaussian likelihood  
-       - Learning rate: 1e−3, batch=32, epochs=100  
+       - Learning rate: 1e–3, batch = 32, epochs = 100  
      - **N-Beats:**  
-       - 3 blocks per stack (trend & seasonality), width=256  
-       - ReLU activations, Adam optimizer (lr=1e−3), epochs=100  
+       - 3 blocks per stack (trend & seasonality), width = 256  
+       - ReLU activations, Adam optimizer (lr = 1e–3), epochs = 100  
 2. **Validation**  
    - Evaluate on 25 validation days; tune hyperparameters (where applicable) to minimize RMSE.  
 3. **Test (7-Day Forecast)**  
    - Generate 7-day forecasts, compute RMSE against actual `PctActive_t` for Days (98 – 104).  
-   - Report RMSE per model per country.
+   - Report RMSE per model per country.  
 
 ---
 
@@ -252,7 +252,7 @@ Below is a concise overview of each method used in this study. References to ori
   <thead>
     <tr>
       <th rowspan="2" align="left">Country</th>
-      <th colspan="5" align="center">Statistical Models</th>
+      <th colspan="4" align="center">Statistical Models</th>
       <th colspan="2" align="center">Deep Learning Models</th>
     </tr>
     <tr>
@@ -270,7 +270,7 @@ Below is a concise overview of each method used in this study. References to ori
       <td align="center">0.007421</td>
       <td align="center">0.013877</td>
       <td align="center">0.172957</td>
-      <td align="center">0.009873</td>
+      <td align="center"><strong>0.009873</strong></td>
       <td align="center">0.036958</td>
       <td align="center">0.044805</td>
     </tr>
@@ -279,7 +279,7 @@ Below is a concise overview of each method used in this study. References to ori
       <td align="center">0.080094</td>
       <td align="center">0.065433</td>
       <td align="center">0.031497</td>
-      <td align="center">0.029295</td>
+      <td align="center"><strong>0.029295</strong></td>
       <td align="center">0.050492</td>
       <td align="center">0.108842</td>
     </tr>
@@ -288,7 +288,7 @@ Below is a concise overview of each method used in this study. References to ori
       <td align="center">0.005628</td>
       <td align="center">0.019217</td>
       <td align="center">0.006616</td>
-      <td align="center">0.005810</td>
+      <td align="center"><strong>0.005810</strong></td>
       <td align="center">0.008645</td>
       <td align="center">0.043551</td>
     </tr>
@@ -297,7 +297,7 @@ Below is a concise overview of each method used in this study. References to ori
       <td align="center">0.005484</td>
       <td align="center">0.007634</td>
       <td align="center">0.004366</td>
-      <td align="center">0.004310</td>
+      <td align="center"><strong>0.004310</strong></td>
       <td align="center">0.037623</td>
       <td align="center">0.046134</td>
     </tr>
@@ -307,7 +307,7 @@ Below is a concise overview of each method used in this study. References to ori
       <td align="center">0.044482</td>
       <td align="center">0.011007</td>
       <td align="center">0.007003</td>
-      <td align="center">0.004220</td>
+      <td align="center"><strong>0.004220</strong></td>
       <td align="center">0.010549</td>
     </tr>
     <tr>
@@ -315,7 +315,7 @@ Below is a concise overview of each method used in this study. References to ori
       <td align="center">0.006431</td>
       <td align="center">0.037139</td>
       <td align="center">0.004586</td>
-      <td align="center">0.003389</td>
+      <td align="center"><strong>0.003389</strong></td>
       <td align="center">0.013192</td>
       <td align="center">0.057523</td>
     </tr>
@@ -324,7 +324,7 @@ Below is a concise overview of each method used in this study. References to ori
       <td align="center">0.001536</td>
       <td align="center">0.014681</td>
       <td align="center">0.002295</td>
-      <td align="center">0.002193</td>
+      <td align="center"><strong>0.002193</strong></td>
       <td align="center">0.027078</td>
       <td align="center">0.034479</td>
     </tr>
@@ -332,7 +332,7 @@ Below is a concise overview of each method used in this study. References to ori
       <td>Turkey</td>
       <td align="center">0.004442</td>
       <td align="center">0.044595</td>
-      <td align="center">0.000887</td>
+      <td align="center"><strong>0.000887</strong></td>
       <td align="center">0.001946</td>
       <td align="center">0.018265</td>
       <td align="center">0.093839</td>
@@ -344,14 +344,14 @@ Below is a concise overview of each method used in this study. References to ori
       <td align="center">0.005717</td>
       <td align="center">0.005621</td>
       <td align="center">0.010870</td>
-      <td align="center">0.002836</td>
+      <td align="center"><strong>0.002836</strong></td>
     </tr>
     <tr>
       <td>Iran</td>
       <td align="center">0.002628</td>
       <td align="center">0.016281</td>
       <td align="center">0.001046</td>
-      <td align="center">0.000425</td>
+      <td align="center"><strong>0.000425</strong></td>
       <td align="center">0.003745</td>
       <td align="center">0.002277</td>
     </tr>
@@ -359,8 +359,8 @@ Below is a concise overview of each method used in this study. References to ori
 </table>
 
 **Key Observations:**
-- **Best Performing Model (lowest RMSE)** in each country (bold):
-  - **USA:** ARIMA (0.007421)  
+- **Best Performing Model** (lowest RMSE) in each country (bold):  
+  - **USA:** TBAT (0.009873)  
   - **Spain:** TBAT (0.029295)  
   - **Italy:** TBAT (0.005810)  
   - **UK:** TBAT (0.004310)  
@@ -375,7 +375,7 @@ Below is a concise overview of each method used in this study. References to ori
 
 ### 5.3. Statistical Ranking (Friedman Test)
 
-To compare multiple models across all ten countries, we applied the non‐parametric **Friedman test** (significance α = 0.02) on the per‐country RMSE rankings. Lower rank = better average performance:
+To compare multiple models across all ten countries, we applied the non-parametric **Friedman test** (significance α = 0.02) on the per-country RMSE rankings. Lower rank = better average performance:
 
 | Rank  | Algorithm  |
 |:-----:|:----------:|
@@ -388,12 +388,12 @@ To compare multiple models across all ten countries, we applied the non‐parame
 
 ---
 
-### 5.4. Holm’s Post‐hoc Analysis (TBAT vs All)
+### 5.4. Holm’s Post-hoc Analysis (TBAT vs All)
 
-After the Friedman test, we used **Holm’s post‐hoc** to compare TBAT against all other algorithms (α = 0.02).  
+After the Friedman test, we used **Holm’s post-hoc** to compare TBAT against all other algorithms (α = 0.02).  
 - **Null Hypothesis (H₀):** There is no significant difference between TBAT and the compared algorithm.
 
-| Comparison        | Test Statistic | Adjusted p‐Value | Result (Reject H₀?) |
+| Comparison        | Test Statistic | Adjusted p-Value | Result (Reject H₀?) |
 |:-----------------:|:--------------:|:----------------:|:-------------------:|
 | TBAT vs DeepAR    | 3.70521        | 0.00106          | **Reject H₀**       |
 | TBAT vs Prophet   | 3.46616        | 0.00211          | **Reject H₀**       |
@@ -409,7 +409,7 @@ After the Friedman test, we used **Holm’s post‐hoc** to compare TBAT against
 
 ### 5.5. Forecasting Examples
 
-The following figures illustrate actual vs. predicted active‐case percentages over the final 7-day test window for selected countries. (Replace placeholder images with actual plots.)
+Below are sample plots of actual vs. predicted active-case percentages over the final 7-day test window for selected countries. Replace placeholder images with actual plots in your `./figures/` folder.
 
 - **Figure 1. USA Forecast (Test Horizon):**  
   ![USA Forecast](./figures/usa_forecast.png)
@@ -428,12 +428,12 @@ The following figures illustrate actual vs. predicted active‐case percentages 
 ## 6. Conclusions & Future Work
 
 - **Key Findings:**  
-  - **TBAT** and **ARIMA** are the top performers for 7-day forecasting of active‐case percentages in most countries.  
-  - **HWAAS** wins for Turkey (lowest RMSE), while **N-Beats** wins for France, and **DeepAR** (GluonTS) wins for Brazil.  
-  - Deep‐learning methods (DeepAR, N-Beats) underperform statistical methods when data volume is limited.  
+  - **TBAT** and **ARIMA** are the top performers for 7-day forecasting of active-case percentages in most countries.  
+  - **HWAAS** wins for Turkey, while **N-Beats** wins for France, and **DeepAR** (GluonTS) wins for Brazil.  
+  - Deep-learning methods (DeepAR, N-Beats) underperform statistical methods when data volume is limited.  
   - **Prophet** (designed for business seasonality) did not rank among top models for any country.  
 
-- **Possible Explanatory Factors for Cross‐Country Differences:**  
+- **Possible Explanatory Factors for Cross-Country Differences:**  
   1. **Climate & Geography:** Differences in temperature/humidity may affect virus spread.  
   2. **Population Density & Demographics:** High density can accelerate transmission.  
   3. **Testing & Reporting Variability:** Inconsistent testing rates/data collection → noisy time series.  
@@ -445,17 +445,17 @@ The following figures illustrate actual vs. predicted active‐case percentages 
      - **Climate Data:** Temperature, humidity, air quality.  
      - **Mobility Data:** Google/Apple mobility reports.  
      - **Policy Indices:** Stringency of lockdown measures.  
-  3. **Transfer Learning:** Use learnings from data‐rich countries to improve forecasts in data‐scarce regions.  
+  3. **Transfer Learning:** Use learnings from data-rich countries to improve forecasts in data-scarce regions.  
   4. **Longer Forecast Horizons:** Extend to 14 or 21 days and evaluate model stability.  
-  5. **Real‐Time Adaptation:** Incorporate an online‐learning setting where models retrain daily as new data arrive.  
+  5. **Real-Time Adaptation:** Incorporate an online-learning setting where models retrain daily as new data arrive.  
 
 ---
 
 ## 7. References
 
-1. World Health Organization. *Naming the Coronavirus Disease (COVID-19) and the Virus that Causes it.* 2020. Available online: [https://www.who.int/emergencies/diseases/novel‐coronavirus‐2019/technical‐guidance/naming‐the‐coronavirus‐disease‐(covid‐2019)‐and‐the‐virus‐that‐causes‐it](https://www.who.int/emergencies/diseases/novel‐coronavirus‐2019/technical‐guidance/naming‐the‐coronavirus‐disease‐(covid‐2019)‐and‐the‐virus‐that‐causes‐it) (accessed May 2, 2020).
+1. World Health Organization. *Naming the Coronavirus Disease (COVID-19) and the Virus that Causes it.* 2020. Available online: [https://www.who.int/emergencies/diseases/novel-coronavirus-2019/technical-guidance/naming-the-coronavirus-disease-(covid-2019)-and-the-virus-that-causes-it](https://www.who.int/emergencies/diseases/novel-coronavirus-2019/technical-guidance/naming-the-coronavirus-disease-(covid-2019)-and-the-virus-that-causes-it) (accessed May 2, 2020).
 
-2. Coronaviridae Study Group. *The species Severe acute respiratory syndrome‐related coronavirus: classifying 2019‐nCoV and naming it SARS‐CoV‐2.* Nat. Microbiol. 2020, 5, 536–544. [CrossRef]
+2. Coronaviridae Study Group. *The species Severe acute respiratory syndrome-related coronavirus: classifying 2019-nCoV and naming it SARS-CoV-2.* Nat. Microbiol. 2020, 5, 536–544. [CrossRef]
 
 3. Lu, H.; Stratton, C.W.; Tang, Y.W. *Outbreak of Pneumonia of Unknown Etiology in Wuhan China: The Mystery and the Miracle.* J. Med. Virol. 2020, 92, 401–402. [CrossRef]
 
@@ -463,11 +463,11 @@ The following figures illustrate actual vs. predicted active‐case percentages 
 
 5. Johns Hopkins University CSSE. *Coronavirus COVID-19 Global Cases.* 2020. Available online: [https://coronavirus.jhu.edu/map.html](https://coronavirus.jhu.edu/map.html) (accessed May 4, 2020).
 
-6. Roosa, K.; Lee, Y.; Luo, R.; Kirpich, A.; Rothenberg, R.; Hyman, J.; Yan, P.; Chowell, G. *Real‐time forecasts of the COVID‐19 epidemic in China from 5 February to 24 February 2020.* Infect. Dis. Model. 2020, 5, 256–263.
+6. Roosa, K.; Lee, Y.; Luo, R.; Kirpich, A.; Rothenberg, R.; Hyman, J.; Yan, P.; Chowell, G. *Real-time forecasts of the COVID-19 epidemic in China from 5 February to 24 February 2020.* Infect. Dis. Model. 2020, 5, 256–263.
 
 7. Yang, Z.; Zeng, Z.; Wang, K.; Wong, S.S.; Liang, W.; Zanin, M.; Liu, P.; Cao, X.; Gao, Z.; Mai, Z.; et al. *Modified SEIR and AI prediction of the epidemics trend of COVID-19 in China under public health interventions.* J. Thorac. Dis. 2020, 12, 165–174. [CrossRef]
 
-8. Petropoulos, F.; Makridakis, S. *Forecasting the novel coronavirus COVID‐19.* PLoS ONE 2020, 15, e0231236. [CrossRef]
+8. Petropoulos, F.; Makridakis, S. *Forecasting the novel coronavirus COVID-19.* PLoS ONE 2020, 15, e0231236. [CrossRef]
 
 9. Box, G.; Jenkins, G. *Time Series Analysis: Forecasting and Control* (3rd ed.). John Wiley & Sons: Hoboken, NJ, USA, 2015.
 
@@ -515,7 +515,7 @@ The following figures illustrate actual vs. predicted active‐case percentages 
 
 31. Anastassopoulou, C.; Russo, L.; Tsakris, A.; Siettos, C. *Data-based analysis, modelling and forecasting of the COVID-19 outbreak.* PLoS ONE 2020, 15, e0230405. [CrossRef] [PubMed]
 
-32. Zhang, J.; Litvinova, M.; Wang, W.; Wang, Y.; Deng, X.; Chen, X.; Li, M.; Zheng, W.; Yi, L.; et al. *Evolving epidemiology, transmission dynamics and control of COVID-19 outside Hubei province, China: A descriptive and modeling study.* Lancet Infect. Dis. 2020, 20, 793–802. [CrossRef]
+32. Zhang, J.; Litvinova, M.; Wang, W.; et al. *Evolving epidemiology, transmission dynamics and control of COVID-19 outside Hubei province, China.* Lancet Infect. Dis. 2020, 20, 793–802. [CrossRef]
 
 33. Zhou, H.; Xu, J.; Xu, X.; Wang, Y.; Tong, Y.; Zhang, Q.; Zhang, X.; Fan, C.; Xiao, G.; Ding, X.; et al. *A deep downscaling approach of global climate model outputs to urban area using convolutional neural networks (CNN).*
 
@@ -523,9 +523,9 @@ The following figures illustrate actual vs. predicted active‐case percentages 
 
 35. Petropoulos, F.; Makridakis, S. *Forecasting the novel coronavirus COVID-19.* PLoS ONE 2020, 15, e0231236. [CrossRef]
 
-36. Wu, J.T.; Leung, K.; Leung, G.M. *Nowcasting and forecasting the potential domestic and international spread of the 2019‐nCoV outbreak originating in Wuhan, China: A modelling study.* Lancet 2020, 395, 689–697. [CrossRef]
+36. Wu, J.T.; Leung, K.; Leung, G.M. *Nowcasting and forecasting the potential domestic and international spread of the 2019-nCoV outbreak originating in Wuhan, China: A modelling study.* Lancet 2020, 395, 689–697. [CrossRef]
 
-37. Anastassopoulou, C.; Russo, L.; Tsakris, A.; Siettos, C. *Data‐based analysis, modelling and forecasting of the COVID‐19 outbreak.* PLoS ONE 2020, 15, e0230405. [CrossRef]
+37. Anastassopoulou, C.; Russo, L.; Tsakris, A.; Siettos, C. *Data-based analysis, modelling and forecasting of the COVID-19 outbreak.* PLoS ONE 2020, 15, e0230405. [CrossRef]
 
 38. Zhang, S.; Diao, M.; Yu, W.; Pei, L.; Lin, Z.; Chen, D. *Estimation of the reproductive number of novel coronavirus (COVID-19) and the probable outbreak size on the Diamond Princess cruise ship: A data-driven analysis.* Int. J. Infect. Dis. 2020, 93, 201–204. [CrossRef] [PubMed]
 
@@ -549,7 +549,7 @@ The following figures illustrate actual vs. predicted active‐case percentages 
 
 48. Chatfield, C. *The Analysis of Time Series: An Introduction* (6th ed.). Chapman & Hall/CRC: Boca Raton, FL, USA, 2003.
 
-49. Snyder, R.D.; Hyndman, R.J. *A state‐space framework for automatic forecasting using exponential smoothing methods.* Int. J. Forecast. 2002, 18, 439–454. [CrossRef]
+49. Snyder, R.D.; Hyndman, R.J. *A state-space framework for automatic forecasting using exponential smoothing methods.* Int. J. Forecast. 2002, 18, 439–454. [CrossRef]
 
 50. Box, G.E.P.; Cox, D.R. *An analysis of transformations.* J. R. Stat. Soc. 1964, 26, 211–243. [CrossRef]
 
@@ -561,7 +561,7 @@ The following figures illustrate actual vs. predicted active‐case percentages 
 
 54. Brockwell, P.J.; Davis, R.A. *Introduction to Time Series and Forecasting* (2nd ed.). Springer: New York, NY, USA, 2002.
 
-55. Hochreiter, S.; Schmidhuber, J. *Long Short‐Term Memory.* Neural Comput. 1997, 9, 1735–1780. [CrossRef]
+55. Hochreiter, S.; Schmidhuber, J. *Long Short-Term Memory.* Neural Comput. 1997, 9, 1735–1780. [CrossRef]
 
 56. Graves, A. *Supervised Sequence Labelling with Recurrent Neural Networks.* Springer: London, UK, 2012.
 
@@ -573,7 +573,7 @@ The following figures illustrate actual vs. predicted active‐case percentages 
 
 60. Hyndman, R.J.; Athanasopoulos, G. *Forecasting: Principles and Practice.* OTexts: Melbourne, Australia, 2018.
 
-61. Novel Corona Virus 2019 Dataset. Kaggle. Available online: [https://www.kaggle.com/sudalairajkumar/novel-corona-virus-2019-india-dataset](https://www.kaggle.com/sudalairajkumar/novel-corona-virus-2019-india-dataset) (accessed May 4, 2020).
+61. Novel Corona Virus 2019 Dataset. Kaggle. Available online: [https://www.kaggle.com/datasets/sudalairajkumar/novel-corona-virus-2019-india-dataset](https://www.kaggle.com/datasets/sudalairajkumar/novel-corona-virus-2019-india-dataset) (accessed May 4, 2020).
 
 62. Population by Country Dataset. Kaggle. Available online: [https://www.kaggle.com/datasets/fernandol/countries-of-the-world](https://www.kaggle.com/datasets/fernandol/countries-of-the-world) (accessed May 4, 2020).
 
